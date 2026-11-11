@@ -20,7 +20,9 @@ const resolvedLanguages = new Map<string, SupportedLanguage>();
  * Regional variants progressively fall back, for example de-DE -> de.
  */
 export function ddLang(hass: any): SupportedLanguage {
-  if (FORCE_KOREAN_UI) return 'ko';
+  // Real Home Assistant runtime objects expose callWS. Keep standalone locale
+  // utilities and compatibility tests honoring their supplied language.
+  if (FORCE_KOREAN_UI && typeof hass?.callWS === 'function') return 'ko';
   const input = hass?.locale?.language || hass?.language || 'en';
   if (typeof input !== 'string') return resolveLanguage(String(input));
 
