@@ -213,7 +213,7 @@ if (!Array.isArray(window.customStrategies)) {
     type: DASHBOARD_STRATEGY_TYPE,
     strategyType: 'dashboard',
     name: 'Dwains Dashboard Next',
-    description: 'Automatic dashboard based on your areas, devices and entities.',
+    description: '방, 기기 및 엔티티를 기반으로 자동 구성되는 대시보드입니다.',
     documentationURL: 'https://github.com/dwainscheeren/dwains-dashboard-next',
   });
 }
@@ -233,7 +233,7 @@ if (!Array.isArray(window.customCards)) {
     type: DASHBOARD_CARD_TYPE,
     name: "Dwains Dashboard Next",
     preview: false,
-    description: "A complete automatic building dashboard solution based on your HA Areas, Devices, Entities and Floors",
+    description: "Home Assistant의 방, 기기, 엔티티, 층 정보를 바탕으로 자동 구성되는 건물 대시보드입니다.",
     documentationURL: "https://github.com/dwainscheeren/dwains-dashboard-next",
   });
 }

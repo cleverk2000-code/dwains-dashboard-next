@@ -1,6 +1,6 @@
 import { en, type TranslationDictionary, type TranslationKey } from './locales/en';
 
-export const SUPPORTED_LANGUAGES = ['en', 'nl', 'de', 'fr', 'es', 'it', 'pt-br', 'zh-hans', 'zh-hant', 'ru'] as const;
+export const SUPPORTED_LANGUAGES = ['en', 'nl', 'de', 'fr', 'es', 'it', 'pt-br', 'zh-hans', 'zh-hant', 'ru', 'ko'] as const;
 
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
@@ -16,6 +16,7 @@ const LOADERS: Record<LoadableLanguage, () => Promise<TranslationDictionary>> = 
   it: () => import('./locales/it').then((m) => m.it),
   'pt-br': () => import('./locales/pt-br').then((m) => m.ptBR),
   ru: () => import('./locales/ru').then((m) => m.ru),
+  ko: () => import('./locales/ko').then((m) => m.ko),
   'zh-hans': () => import('./locales/zh-Hans').then((m) => m.zhHans),
   'zh-hant': () => import('./locales/zh-Hant').then((m) => m.zhHant),
 };

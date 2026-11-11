@@ -1,0 +1,56 @@
+name: Sync HACS distribution
+
+on:
+  push:
+    branches:
+      - main
+      - feat/korean-localization
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'rollup.config.js'
+      - '.github/workflows/sync-dist.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hacs-dist-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Check Korean translation completeness
+        run: npm run i18n:check
+      - name: Type check
+        run: npm run type-check
+      - name: Run tests
+        run: npm test
+      - name: Build distribution
+        run: npm run build
+      - name: Commit built HACS assets if changed
+        run: |
+          git add -A dist
+          if git diff --cached --quiet; then
+            echo "Distribution already up to date"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "build: synchronize HACS bundle [skip ci]"
+          git push origin "HEAD:${{ github.ref_name }}"
