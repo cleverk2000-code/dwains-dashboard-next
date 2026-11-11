@@ -6,12 +6,14 @@
 
 Dwains Dashboard Next is the next generation of Dwains Dashboard for Home Assistant.
 
+> **한국어 포크:** 이 저장소의 `main` 브랜치에는 한국어 UI 835개 문구와 빌드된 HACS 배포 파일이 포함되어 있습니다. HACS에서는 이 포크의 `main`을 선택하세요. 기존 영어 문서 및 원본 Home Assistant/사용자 지정 카드의 문구는 별도로 표시될 수 있습니다.
+
 It installs as a Home Assistant dashboard through HACS. On a normal HACS setup it does not require a custom integration, Python files, YAML setup, or manual file uploads.
 
 See this as Dwains Dashboard v4: totally rebuilt from scratch, with a completely new design and new features.
 
 <p align="center">
-  <a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=dwainscheeren&repository=dwains-dashboard-next&category=dashboard">
+  <a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=cleverk2000-code&repository=dwains-dashboard-next&category=dashboard">
     <img src="https://my.home-assistant.io/badges/hacs_repository.svg" alt="Open this repository in HACS">
   </a>
 </p>
