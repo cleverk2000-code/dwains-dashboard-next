@@ -7,6 +7,10 @@ import {
 } from '../i18n';
 import { getPluralRules } from './intl-cache';
 
+// This fork intentionally keeps its own interface Korean, independent of the
+// Home Assistant account language. Set false to restore normal locale selection.
+const FORCE_KOREAN_UI = true;
+
 // ddLocalize runs a few hundred times per render, so the resolved language is
 // cached per raw Home Assistant language string.
 const resolvedLanguages = new Map<string, SupportedLanguage>();
@@ -16,6 +20,7 @@ const resolvedLanguages = new Map<string, SupportedLanguage>();
  * Regional variants progressively fall back, for example de-DE -> de.
  */
 export function ddLang(hass: any): SupportedLanguage {
+  if (FORCE_KOREAN_UI) return 'ko';
   const input = hass?.locale?.language || hass?.language || 'en';
   if (typeof input !== 'string') return resolveLanguage(String(input));
 
