@@ -48,6 +48,28 @@ describe('ddLang', () => {
   });
 });
 
+describe('Korean fork behavior in Home Assistant', () => {
+  const activeHass = (language: string) => ({
+    ...hass(language),
+    callWS: async () => ({}),
+  });
+
+  it('selects Korean in an active Home Assistant dashboard', () => {
+    expect(ddLang(activeHass('en'))).toBe('ko');
+    expect(ddLang(activeHass('de'))).toBe('ko');
+    expect(ddLang(activeHass('ko-KR'))).toBe('ko');
+  });
+
+  it('renders localized labels and placeholders in Korean', async () => {
+    await loadTranslations('ko');
+    expect(ddLocalize(activeHass('en'), 'devices.title')).toBe('기기');
+    expect(ddLocalize(activeHass('en'), 'home.areas')).toBe('방');
+    expect(ddLocalize(activeHass('en'), 'domain.climate')).toBe('난방');
+    expect(ddLocalize(activeHass('en'), 'domain.humidifier')).toBe('가습기');
+    expect(ddLocalize(activeHass('en'), 'common.device.other', { count: 3 })).toBe('기기 3개');
+  });
+});
+
 describe('ddLocale', () => {
   it('keeps the regional locale for number and plural formatting', () => {
     expect(ddLocale(hass('pt-BR'))).toBe('pt-BR');
