@@ -249,13 +249,13 @@ describe('DwainsDashboardStrategy', () => {
     });
   });
 
-  it('uses the default title and localized view titles', async () => {
+  it('uses the default title and Korean view titles in the active HA runtime', async () => {
     const dashboard = await new DwainsDashboardStrategy().generate(
       { type: 'custom:dwains-dashboard-next' },
       mockHass({ language: 'nl' })
     );
     expect(dashboard.title).toBe('Dwains Dashboard');
-    expect(viewByPath(dashboard.views, 'devices').title).toBe('Apparaten');
+    expect(viewByPath(dashboard.views, 'devices').title).toBe('기기');
     expect(dashboard.views.map((view) => view.path)).toEqual(['home', 'devices', 'add-blueprint']);
   });
 
