@@ -16,8 +16,17 @@ import { splitUpstreamPower } from './power-hierarchy';
 // those entities, the area's temperature and humidity sensors and the parts of
 // hass and the config the result depends on. Home Assistant replaces a state
 // object whenever that entity changes, so this is exact without a time limit.
+const HALLWAY_MOTION_ENTITY_ID = 'binary_sensor.bogdo_bogdomosyeonsenseo_motion';
+
+// A fixed sensor mapping for the user's hallway. Read the live HA state,
+// even when the entity has no device class, is unassigned or is hidden in area.
+function isHallwayArea(area: AreaConfig): boolean {
+  return area.area_id.toLowerCase() === 'bogdo' || area.name.trim() === '복도';
+}
+
 interface AreaDataCacheEntry {
   area: AreaConfig;
+  hallwayMotionState: HassEntity | undefined;
   areaEntities: EntityConfig[];
   entityStates: Array<HassEntity | undefined>;
   areaRegistry: unknown;
@@ -58,8 +67,10 @@ const cachedAreaData = (
   if (!cached) return undefined;
 
   const areaRegistry = hass.areas?.[area.area_id] as any;
+  const hallwayMotionState = isHallwayArea(area) ? hass.states[HALLWAY_MOTION_ENTITY_ID] : undefined;
   if (
     cached.area !== area ||
+    cached.hallwayMotionState !== hallwayMotionState ||
     cached.areaEntities !== areaEntities ||
     cached.areaRegistry !== areaRegistry ||
     cached.formatEntityState !== hass.formatEntityState ||
@@ -216,13 +227,17 @@ export const getAreaData = (area: AreaConfig, hass: HomeAssistant, areaEntities:
     motion: { total: 0, on: 0 }
   };
 
+  const countedMotionEntityIds = new Set<string>();
   areaEntities.forEach(entity => {
     const state = hass.states[entity.entity_id];
     if (!state) return;
 
     const domain = getEntityDomain(entity.entity_id);
+    // The named hallway sensor is included through the dedicated fallback below,
+    // regardless of area membership or its "hide in area" setting.
+    if (entity.entity_id === HALLWAY_MOTION_ENTITY_ID && !isHallwayArea(area)) return;
 
-    // Skip hidden entities
+    // Skip hidden entities, but keep the explicit hallway motion fallback.
     if (isEntityHidden(entity.entity_id, domain, area.area_id, config)) {
       return;
     }
@@ -259,6 +274,7 @@ export const getAreaData = (area: AreaConfig, hass: HomeAssistant, areaEntities:
           device_class: getEntityRegistry(hass)[entity.entity_id]?.device_class,
           original_device_class: getEntityRegistry(hass)[entity.entity_id]?.original_device_class,
         }) === 'motion') {
+      countedMotionEntityIds.add(entity.entity_id);
       const motionCount = domainCounts['motion'];
       if (motionCount) {
         motionCount.total++;
@@ -282,6 +298,15 @@ export const getAreaData = (area: AreaConfig, hass: HomeAssistant, areaEntities:
     }
   });
 
+  // HA may not associate this binary_sensor with the hallway, or the dashboard
+  // may hide it from the room entity list. Still show its live state on the
+  // hallway's small status icon, without double counting when already present.
+  const hallwayMotionState = isHallwayArea(area) ? hass.states[HALLWAY_MOTION_ENTITY_ID] : undefined;
+  if (hallwayMotionState && !countedMotionEntityIds.has(HALLWAY_MOTION_ENTITY_ID)) {
+    domainCounts.motion!.total++;
+    if (hallwayMotionState.state === 'on') domainCounts.motion!.on++;
+  }
+
   const areaData: AreaData = {
     area_id: area.area_id,
     name: area.name,
@@ -298,6 +323,7 @@ export const getAreaData = (area: AreaConfig, hass: HomeAssistant, areaEntities:
   // Cache the result
   areaDataCache.set(area.area_id, {
     area,
+    hallwayMotionState,
     areaEntities,
     entityStates: areaEntities.map(entity => hass.states[entity.entity_id]),
     areaRegistry,

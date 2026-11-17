@@ -133,6 +133,49 @@ describe('getAreaData', () => {
     expect(data.alerts).toEqual([{ entity_id: 'binary_sensor.window', deviceClass: 'window' }]);
   });
 
+  it('always shows the named hallway motion sensor even without area membership or device class', () => {
+    const hallway = { area_id: 'hallway', name: '복도' };
+    const motionId = 'binary_sensor.bogdo_bogdomosyeonsenseo_motion';
+    const idleMotion = entityState(motionId, 'off');
+    const hallLight = entityState('light.hall', 'off');
+    const hass = hassWithStates([hallLight, idleMotion]);
+    const hallwayEntities = [{ entity_id: hallLight.entity_id }];
+
+    const idle = getAreaData(hallway, hass, hallwayEntities);
+    expect(idle.domains.motion).toEqual({ total: 1, on: 0 });
+
+    // The hallway sensor is not in the tracked area entity list. Its changing
+    // live HA state still invalidates the area's cached summary.
+    const changed = { ...hass, states: { ...hass.states, [motionId]: entityState(motionId, 'on') } };
+    const active = getAreaData(hallway, changed, hallwayEntities);
+    expect(active.domains.motion).toEqual({ total: 1, on: 1 });
+    expect(active).not.toBe(idle);
+  });
+
+  it('does not double count the hallway sensor even when hidden in the room', () => {
+    const hallway = { area_id: 'hallway', name: '복도' };
+    const motionId = 'binary_sensor.bogdo_bogdomosyeonsenseo_motion';
+    const activeMotion = entityState(motionId, 'on', { device_class: 'motion' });
+    const hass = hassWithStates([activeMotion]);
+    const hallwayEntities = [{ entity_id: motionId }];
+
+    const visible = getAreaData(hallway, hass, hallwayEntities);
+    expect(visible.domains.motion).toEqual({ total: 1, on: 1 });
+
+    const hidden = getAreaData(hallway, hass, hallwayEntities, {
+      areas_options: { hallway: { groups_options: { binary_sensor: { hidden: [motionId] } } } },
+    });
+    expect(hidden.domains.motion).toEqual({ total: 1, on: 1 });
+  });
+
+  it('does not assign the hallway motion sensor to unrelated rooms', () => {
+    const room = { area_id: 'bedroom', name: '침실' };
+    const sensor = entityState('binary_sensor.bogdo_bogdomosyeonsenseo_motion', 'on', { device_class: 'motion' });
+    const hass = hassWithStates([sensor]);
+    expect(getAreaData(room, hass, [{ entity_id: sensor.entity_id }]).domains.motion)
+      .toEqual({ total: 0, on: 0 });
+  });
+
   describe('with a device hierarchy in the energy settings', () => {
     const circuits = [
       entityState('sensor.general_power', '3200', { unit_of_measurement: 'W' }),
