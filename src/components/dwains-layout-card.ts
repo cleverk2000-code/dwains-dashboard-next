@@ -1968,7 +1968,7 @@ export class DwainsLayoutCard extends LitElement {
                       style=${this._areaBadgeStyle(badge)}
                     >
                       <ha-icon icon=${badge.icon}></ha-icon>
-                      ${badge.deviceClass === 'motion' ? nothing : html`<span class="badge-count">${badge.count}</span>`}
+                      <span class="badge-count">${badge.count}</span>
                     </span>
                   `)}
                   ${hiddenBadges ? html`
@@ -3449,7 +3449,7 @@ export class DwainsLayoutCard extends LitElement {
                 style=${`--area-badge-color: ${badge.color};`}
               >
                 <ha-icon icon=${badge.icon}></ha-icon>
-                ${badge.deviceClass === 'motion' ? nothing : html`<span>${badge.count}</span>`}
+                <span>${badge.count}</span>
               </span>
             `)}
             ${hiddenBadges ? html`

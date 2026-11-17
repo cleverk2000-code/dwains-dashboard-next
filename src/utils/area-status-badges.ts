@@ -14,13 +14,9 @@ export interface AreaStatusBadge {
   urgent: boolean;
 }
 
-// Keep motion visible on four-slot mobile room cards: after lights and before
-// the remaining controls. Safety alerts still take priority when urgent.
-const DOMAIN_ORDER = ['light', 'motion', 'switch', 'cover', 'climate', 'media_player', 'fan', 'lock'];
+// Controls first, then motion, then the alerts.
+const DOMAIN_ORDER = ['light', 'switch', 'cover', 'climate', 'media_player', 'fan', 'lock'];
 const ALERT_ORDER = ['window', 'door', 'moisture', 'smoke'];
-
-const MOTION_DETECTED_COLOR = '#22c55e';
-const MOTION_IDLE_COLOR = '#808080';
 
 // The lock badge counts unlocked locks.
 const DOMAIN_BADGE_ICONS: Record<string, string> = {
@@ -46,34 +42,23 @@ export function buildAreaStatusBadges(areaData: AreaData, alarmTriggered: boolea
   };
 
   DOMAIN_ORDER.forEach(domain => {
-    if (domain === 'motion') {
-      const motion = areaData.domains.motion;
-      // Show a motion icon even when idle. The icon colour alone indicates
-      // detection; its numeric count is intentionally hidden on area cards.
-      if (motion?.total) {
-        const count = motion.on || 0;
-        const badge = {
-          key: 'binary_sensor.motion',
-          className: 'motion',
-          domain: 'binary_sensor',
-          deviceClass: 'motion',
-          icon: getDeviceClassIcon('binary_sensor', 'motion'),
-          count,
-        };
-        badges.push({
-          ...badge,
-          urgent: count > 0 && isUrgentStatus(badge, alarmTriggered),
-          color: count > 0 ? MOTION_DETECTED_COLOR : MOTION_IDLE_COLOR,
-        });
-      }
-      return;
-    }
-
     const count = areaData.domains[domain]?.on || 0;
     if (count) {
       add({ key: domain, className: domain, domain, icon: DOMAIN_BADGE_ICONS[domain] || getDomainIcon(domain), count });
     }
   });
+
+  const motion = areaData.domains.motion?.on || 0;
+  if (motion) {
+    add({
+      key: 'binary_sensor.motion',
+      className: 'motion',
+      domain: 'binary_sensor',
+      deviceClass: 'motion',
+      icon: getDeviceClassIcon('binary_sensor', 'motion'),
+      count: motion,
+    });
+  }
 
   const alertCounts = new Map<string, number>();
   areaData.alerts.forEach(alert => {
