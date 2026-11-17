@@ -255,7 +255,10 @@ export const getAreaData = (area: AreaConfig, hass: HomeAssistant, areaEntities:
     // Keep the area badge's motion group aligned with the room's binary_sensor
     // grouping. The registry class covers integrations that omit a state class.
     if (domain === 'binary_sensor' &&
-        getAreaEntityGroupKey(entity.entity_id, state, getEntityRegistry(hass)[entity.entity_id]) === 'motion') {
+        getAreaEntityGroupKey(entity.entity_id, state, {
+          device_class: getEntityRegistry(hass)[entity.entity_id]?.device_class,
+          original_device_class: getEntityRegistry(hass)[entity.entity_id]?.original_device_class,
+        }) === 'motion') {
       const motionCount = domainCounts['motion'];
       if (motionCount) {
         motionCount.total++;
