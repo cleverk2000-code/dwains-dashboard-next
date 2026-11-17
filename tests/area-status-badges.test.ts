@@ -41,21 +41,23 @@ describe('buildAreaStatusBadges', () => {
     expect(buildAreaStatusBadges(areaData({ light: 0, switch: 0, motion: 0 }), false)).toEqual([]);
   });
 
-  it('always shows a recognized motion sensor, grey when idle and red when detected', () => {
+  it('always shows a recognized motion sensor, grey when idle and green when detected', () => {
     const data = areaData({ light: 1 });
     data.domains.motion = { total: 2, on: 0 };
     const idle = buildAreaStatusBadges(data, true);
     expect(idle.map(badge => badge.key)).toEqual(['light', 'binary_sensor.motion']);
     expect(idle[1]).toMatchObject({
-      count: 0, icon: 'mdi:motion-sensor', color: getDomainColor('binary_sensor'), urgent: false,
+      count: 0, icon: 'mdi:motion-sensor', color: '#808080', urgent: false,
     });
 
     data.domains.motion = { total: 2, on: 1 };
     const detected = buildAreaStatusBadges(data, false);
     expect(detected[1]).toMatchObject({
-      count: 1, color: getDomainColor('binary_sensor', 'motion'), urgent: false,
+      count: 1, color: '#22c55e', urgent: false,
     });
-    expect(buildAreaStatusBadges(data, true)[0]?.key).toBe('binary_sensor.motion');
+    expect(buildAreaStatusBadges(data, true)[0]).toMatchObject({
+      key: 'binary_sensor.motion', urgent: true, color: '#22c55e',
+    });
   });
 
   it('keeps motion in the visible mobile badge slots even with many active devices', () => {
@@ -102,7 +104,8 @@ describe('buildAreaStatusBadges', () => {
 
     const triggered = buildAreaStatusBadges(data, true);
     expect(triggered.map(badge => badge.key)).toEqual(['binary_sensor.motion', 'binary_sensor.window', 'light']);
-    expect(triggered.slice(0, 2).every(badge => badge.urgent && badge.color === URGENT_STATUS_COLOR)).toBe(true);
+    expect(triggered[0]).toMatchObject({ urgent: true, color: '#22c55e' });
+    expect(triggered[1]).toMatchObject({ urgent: true, color: URGENT_STATUS_COLOR });
   });
 });
 

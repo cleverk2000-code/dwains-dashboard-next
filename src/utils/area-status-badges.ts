@@ -1,5 +1,5 @@
 import type { AreaData } from '../types/strategy';
-import { getAlertIcon, getDeviceClassIcon, getDomainColor, getDomainIcon } from './icons';
+import { getAlertIcon, getDeviceClassIcon, getDomainIcon } from './icons';
 import { isUrgentStatus, sortUrgentFirst, statusColor } from './status-urgency';
 
 /** One status badge of an area in the sidebar or on a mobile area card. */
@@ -18,6 +18,9 @@ export interface AreaStatusBadge {
 // the remaining controls. Safety alerts still take priority when urgent.
 const DOMAIN_ORDER = ['light', 'motion', 'switch', 'cover', 'climate', 'media_player', 'fan', 'lock'];
 const ALERT_ORDER = ['window', 'door', 'moisture', 'smoke'];
+
+const MOTION_DETECTED_COLOR = '#22c55e';
+const MOTION_IDLE_COLOR = '#808080';
 
 // The lock badge counts unlocked locks.
 const DOMAIN_BADGE_ICONS: Record<string, string> = {
@@ -45,8 +48,8 @@ export function buildAreaStatusBadges(areaData: AreaData, alarmTriggered: boolea
   DOMAIN_ORDER.forEach(domain => {
     if (domain === 'motion') {
       const motion = areaData.domains.motion;
-      // A sensor in this room must have a badge even when motion is not
-      // currently detected. Zero is grey; active detection is highlighted.
+      // Show a motion icon even when idle. The icon colour alone indicates
+      // detection; its numeric count is intentionally hidden on area cards.
       if (motion?.total) {
         const count = motion.on || 0;
         const badge = {
@@ -57,8 +60,11 @@ export function buildAreaStatusBadges(areaData: AreaData, alarmTriggered: boolea
           icon: getDeviceClassIcon('binary_sensor', 'motion'),
           count,
         };
-        if (count) add(badge);
-        else badges.push({ ...badge, urgent: false, color: getDomainColor('binary_sensor') });
+        badges.push({
+          ...badge,
+          urgent: count > 0 && isUrgentStatus(badge, alarmTriggered),
+          color: count > 0 ? MOTION_DETECTED_COLOR : MOTION_IDLE_COLOR,
+        });
       }
       return;
     }
