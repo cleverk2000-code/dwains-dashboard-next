@@ -449,6 +449,8 @@ export const ko = {
   "devices.live_power_usage": "방별 실시간 전력 사용량",
   "devices.live_power_sensor.one": "실시간 전력 센서 {count}개",
   "devices.live_power_sensor.other": "실시간 전력 센서 {count}개",
+  "devices.energy_settings_power_sensor.one": "에너지 설정의 전력 센서 {count}개",
+  "devices.energy_settings_power_sensor.other": "에너지 설정의 전력 센서 {count}개",
   "devices.power_entity.one": "전력 엔티티 {count}개",
   "devices.power_entity.other": "전력 엔티티 {count}개",
   "devices.whole_house": "집 전체",

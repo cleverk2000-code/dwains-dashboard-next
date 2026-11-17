@@ -6,7 +6,7 @@
 
 Dwains Dashboard Next is the next generation of Dwains Dashboard for Home Assistant.
 
-> **한국어 포크:** 이 저장소의 `main` 브랜치에는 한국어 UI 835개 문구와 빌드된 HACS 배포 파일이 포함되어 있습니다. HACS에서는 이 포크의 `main`을 선택하세요. 기존 영어 문서 및 원본 Home Assistant/사용자 지정 카드의 문구는 별도로 표시될 수 있습니다.
+> **한국어 포크 (원본 v1.14.2 기반):** 이 저장소의 `main` 브랜치는 한국어 UI 번역 837개와 HACS 배포 빌드를 제공합니다. HACS에서 이 포크의 `main` 브랜치를 선택하세요. 사용자 지정 카드 및 Home Assistant 자체 문구는 별도로 표시될 수 있습니다.
 
 It installs as a Home Assistant dashboard through HACS. On a normal HACS setup it does not require a custom integration, Python files, YAML setup, or manual file uploads.
 
@@ -24,7 +24,7 @@ See this as Dwains Dashboard v4: totally rebuilt from scratch, with a completely
 
 [Watch the launch video](https://dwainscheeren.github.io/dwains-dashboard-next/media/dd-next-1.11-home-areas.mp4) · 22 seconds · 1080p · Music
 
-Current screenshots from **v1.11.0**, captured in October 2026. The interface is in English; room and entity names come from the Home Assistant setup.
+Current screenshots from **v1.11.0**, captured in October 2026. The original screenshots show the English interface; room and entity names come from the Home Assistant setup.
 
 <p align="center">
   <img src="docs/screenshots/v1.11.0/desktop/home.jpg" alt="Dwains Dashboard Next 1.11.0 Home overview" width="920">
@@ -59,7 +59,7 @@ See the [screenshot gallery](docs/screenshots.md) for room controls, wall tablet
 
 ## Status
 
-Current release: `1.13.0`
+Current release: `1.14.2`
 
 ## Community And Support
 

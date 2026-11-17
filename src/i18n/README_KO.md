@@ -1,6 +1,6 @@
 # 한국어 번역 유지관리
 
-이 포크는 Dwains Dashboard Next의 UI를 한국어로 표시합니다.
+이 포크는 원본 Dwains Dashboard Next v1.14.2의 UI를 한국어로 표시하며, 837개의 번역 키를 포함합니다.
 
 - 번역 원본: `src/i18n/locales/en.ts`
 - 한국어 사전: `src/i18n/locales/ko.ts`
