@@ -2,6 +2,7 @@ import type { HomeAssistant, HassEntity } from '../types/home-assistant';
 import type { AreaConfig, AreaData, AlertInfo, DomainCounts, EntityConfig } from '../types/strategy';
 import { formatEntityStateWithUnit, formatValueWithUnit } from './unit-format';
 import { getEntityRegistry } from './entity-registry';
+import { getAreaEntityGroupKey } from './area-entities';
 import {
   countedPowerSensorsOf,
   getEnergyPowerConfig,
@@ -251,9 +252,10 @@ export const getAreaData = (area: AreaConfig, hass: HomeAssistant, areaEntities:
       }
     }
 
-    // Handle motion sensors separately
-    if (entity.entity_id.startsWith('binary_sensor.') &&
-        state.attributes.device_class === 'motion') {
+    // Keep the area badge's motion group aligned with the room's binary_sensor
+    // grouping. The registry class covers integrations that omit a state class.
+    if (domain === 'binary_sensor' &&
+        getAreaEntityGroupKey(entity.entity_id, state, getEntityRegistry(hass)[entity.entity_id]) === 'motion') {
       const motionCount = domainCounts['motion'];
       if (motionCount) {
         motionCount.total++;

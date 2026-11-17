@@ -113,6 +113,26 @@ describe('getAreaData', () => {
     });
   });
 
+  it('counts motion, occupancy, presence and registry-class binary sensors on room badges', () => {
+    const sensors = [
+      entityState('binary_sensor.hall_motion', 'off', { device_class: 'motion' }),
+      entityState('binary_sensor.room_presence', 'on', { device_class: 'presence' }),
+      entityState('binary_sensor.room_occupancy', 'off', { device_class: 'occupancy' }),
+      entityState('binary_sensor.registry_motion', 'on'),
+      entityState('binary_sensor.window', 'on', { device_class: 'window' }),
+    ];
+    const hass = makeHass(sensors);
+    (hass.entities as any)['binary_sensor.registry_motion'] = {
+      entity_id: 'binary_sensor.registry_motion',
+      original_device_class: 'motion',
+    };
+    const data = getAreaData(
+      area, hass, sensors.map(sensor => ({ entity_id: sensor.entity_id })), config
+    );
+    expect(data.domains.motion).toEqual({ total: 4, on: 2 });
+    expect(data.alerts).toEqual([{ entity_id: 'binary_sensor.window', deviceClass: 'window' }]);
+  });
+
   describe('with a device hierarchy in the energy settings', () => {
     const circuits = [
       entityState('sensor.general_power', '3200', { unit_of_measurement: 'W' }),
