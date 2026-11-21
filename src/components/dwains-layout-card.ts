@@ -2059,6 +2059,28 @@ export class DwainsLayoutCard extends LitElement {
     `;
   }
 
+  /** Keep the away indicator directly to the right of the People status chip. */
+  private _renderAwayModeHeaderChip() {
+    if (!isAwayModeActive(this.hass)) return nothing;
+
+    return html`
+      <div
+        class="status-card-compact away-active header-card"
+        role="button"
+        tabindex="0"
+        title="외출 중"
+        aria-label="외출 중"
+        @click=${() => this._showMoreInfo(AWAY_MODE_ENTITY_ID)}
+        @keydown=${(event: KeyboardEvent) => this._handleActivationKeydown(event, () => this._showMoreInfo(AWAY_MODE_ENTITY_ID))}
+      >
+        <div class="status-card-icon-compact">
+          <ha-icon icon="mdi:airplane-takeoff"></ha-icon>
+        </div>
+        <div class="status-card-title-compact">외출 중</div>
+      </div>
+    `;
+  }
+
   private _renderHeaderStatusCards() {
     const domains = this._getStatusDomains();
 
@@ -2082,22 +2104,7 @@ export class DwainsLayoutCard extends LitElement {
           @wheel=${this._handleHeaderStatusWheel}
         >
           <div class="header-status-track">
-            ${isAwayModeActive(this.hass) ? html`
-              <div
-                class="status-card-compact away-active header-card"
-                role="button"
-                tabindex="0"
-                title="외출 중"
-                aria-label="외출 중"
-                @click=${() => this._showMoreInfo(AWAY_MODE_ENTITY_ID)}
-                @keydown=${(event: KeyboardEvent) => this._handleActivationKeydown(event, () => this._showMoreInfo(AWAY_MODE_ENTITY_ID))}
-              >
-                <div class="status-card-icon-compact">
-                  <ha-icon icon="mdi:airplane-takeoff"></ha-icon>
-                </div>
-                <div class="status-card-title-compact">외출 중</div>
-              </div>
-            ` : nothing}
+            ${!domains.some(domain => domain.domain === 'person') ? this._renderAwayModeHeaderChip() : nothing}
             ${repeat(
               domains,
               d => `${d.domain}-${d.statusKind || d.deviceClass || d.name}`,
@@ -2122,6 +2129,7 @@ export class DwainsLayoutCard extends LitElement {
                   <div class="status-card-title-compact">${domain.value || this._statusCardTitle(domain)}</div>
                   ${domain.value ? html`<div class="status-card-subtitle-compact">${domain.name}</div>` : nothing}
                 </div>
+                ${domain.domain === 'person' ? this._renderAwayModeHeaderChip() : nothing}
               `
             )}
           </div>
