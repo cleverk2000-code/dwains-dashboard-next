@@ -531,6 +531,15 @@ export const layoutCardStyles = css`
       color: var(--status-color, #d88e20);
     }
 
+    /* Home Assistant input_boolean.away_active: show only while away. */
+    .status-card-compact.away-active .status-card-icon-compact {
+      background: color-mix(in srgb, var(--warning-color, #e3a12d) 16%, transparent);
+    }
+
+    .status-card-compact.away-active ha-icon {
+      color: var(--warning-color, #e3a12d);
+    }
+
     /* Header Expand Button */
     .header-expand-button {
       position: absolute;
@@ -1386,6 +1395,11 @@ export const layoutCardStyles = css`
       background: var(--error-color);
       color: var(--text-primary-color);
       animation: pulse 2s infinite;
+    }
+
+    .welcome-alarm.welcome-away {
+      background: color-mix(in srgb, var(--warning-color, #e3a12d) 16%, var(--card-background-color));
+      color: var(--warning-color, #e3a12d);
     }
 
     .welcome-alarm:hover {

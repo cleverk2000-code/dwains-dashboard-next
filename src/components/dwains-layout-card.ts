@@ -26,6 +26,7 @@ import {
 } from '../utils/state-relevance';
 import { getAreaIcon, getDeviceClassIcon, getDomainColor, getDomainIcon } from '../utils/icons';
 import { getStatusDomains, type DomainCount as StatusDomainCount } from '../utils/header-status-domains';
+import { AWAY_MODE_ENTITY_ID, hasAwayModeChange, isAwayModeActive } from '../utils/away-status';
 import { applyStatusUrgency, statusColor } from '../utils/status-urgency';
 import {
   MOBILE_AREA_BADGE_LIMIT,
@@ -1371,6 +1372,9 @@ export class DwainsLayoutCard extends LitElement {
     // Registries, user, language, themes, formatters and so on.
     if (hassChangedOutsideStates(oldHass, newHass)) return true;
 
+    // The away chip is global, even when its helper is not assigned to a room.
+    if (this._selectedView !== 'settings' && hasAwayModeChange(oldHass, newHass)) return true;
+
     if (this._selectedView === 'settings') {
       return hasRelevantStateChange(oldHass.states, newHass.states, isUpdateEntityStateChange);
     }
@@ -2078,6 +2082,22 @@ export class DwainsLayoutCard extends LitElement {
           @wheel=${this._handleHeaderStatusWheel}
         >
           <div class="header-status-track">
+            ${isAwayModeActive(this.hass) ? html`
+              <div
+                class="status-card-compact away-active header-card"
+                role="button"
+                tabindex="0"
+                title="외출 중"
+                aria-label="외출 중"
+                @click=${() => this._showMoreInfo(AWAY_MODE_ENTITY_ID)}
+                @keydown=${(event: KeyboardEvent) => this._handleActivationKeydown(event, () => this._showMoreInfo(AWAY_MODE_ENTITY_ID))}
+              >
+                <div class="status-card-icon-compact">
+                  <ha-icon icon="mdi:airplane-takeoff"></ha-icon>
+                </div>
+                <div class="status-card-title-compact">외출 중</div>
+              </div>
+            ` : nothing}
             ${repeat(
               domains,
               d => `${d.domain}-${d.statusKind || d.deviceClass || d.name}`,
@@ -2610,6 +2630,7 @@ export class DwainsLayoutCard extends LitElement {
     const userPicture = this._getWelcomeUserPicture(userName);
     const userInitials = this._userInitials(this.hass?.user?.name || '');
     const alarmContent = this._renderHomeAlarm();
+    const awayActive = isAwayModeActive(this.hass);
 
     return html`
       <div class="home-welcome">
@@ -2668,8 +2689,20 @@ export class DwainsLayoutCard extends LitElement {
               <div class="welcome-date">${this._currentDate}</div>
             </div>
           </div>
-          ${alarmContent !== nothing || weatherTemperature ? html`
+          ${alarmContent !== nothing || weatherTemperature || awayActive ? html`
             <div class="welcome-subheader">
+              ${awayActive ? html`
+                <button
+                  class="welcome-alarm welcome-away"
+                  type="button"
+                  title="외출 중"
+                  aria-label="외출 중"
+                  @click=${() => this._showMoreInfo(AWAY_MODE_ENTITY_ID)}
+                >
+                  <ha-icon icon="mdi:airplane-takeoff"></ha-icon>
+                  <span class="alarm-text">외출 중</span>
+                </button>
+              ` : nothing}
               ${alarmContent}
               ${weatherEntity && weatherTemperature ? html`
                 <button
